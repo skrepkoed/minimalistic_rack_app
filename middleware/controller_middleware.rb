@@ -1,19 +1,21 @@
+# frozen_string_literal: true
+
 require_relative '../services/params_parser'
 require_relative '../services/time_parser'
-require 'pry'
 class ControllerMiddleware
-	attr_accessor :params
-	def initialize(app)
-		@app = app
-	end
+  attr_accessor :params
 
-	def call(env)
-		status, headers, body = @app.call(env)
-		@params = ParamsParser.parse(env["QUERY_STRING"])
-		send(@app.route.action)
-		[status, headers, body]
-	end
+  def initialize(app)
+    @app = app
+  end
 
-	def time
-	end
+  def call(env)
+    @app.call(env)
+    @params = ParamsParser.parse(env['QUERY_STRING'])
+    send(@app.route.action)
+  end
+
+  def time
+    TimeParser.parse(params[:format])
+  end
 end
