@@ -1,3 +1,4 @@
+require 'pry'
 class App
 	def call(env)
 		[status, headers, body]
