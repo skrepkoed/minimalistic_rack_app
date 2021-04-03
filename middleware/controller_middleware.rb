@@ -12,7 +12,7 @@ class ControllerMiddleware
   def call(env)
     status, headers, body = @app.call(env)
     @params = ParamsParser.parse(env['QUERY_STRING'])
-    if @app.route.exists?
+    if @app.route.exists? && params[:format]
       send(@app.route.action)
     else
       [404, { 'Content-Type' => 'text/plain' }, ['Not Found']]
