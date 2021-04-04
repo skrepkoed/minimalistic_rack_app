@@ -8,7 +8,8 @@ class TimeParser
   def initialize(time_format)
     @time_format = CGI.unescape(time_format).split(',')
     @time = Time.now
-    analyze
+    @directives = ''
+    @unknown_formats = []
   end
 
   def formated_time
@@ -16,8 +17,6 @@ class TimeParser
   end
 
   def analyze
-    @directives = ''
-    @unknown_formats = []
     time_format.each do |format|
       if ALLOWED_FORMATS[format]
         @directives += "#{ALLOWED_FORMATS[format]}:"

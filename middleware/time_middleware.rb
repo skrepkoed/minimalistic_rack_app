@@ -7,52 +7,36 @@ class TimeMiddleware
   end
 
   def call(env)
-    route = Route.new(http_method: env['REQUEST_METHOD'], route: env['REQUEST_PATH'])
     @response = @app.call(env)
-    if route.exists?
-      send(route.action, ParamsParser.parse(env['QUERY_STRING']))
+    if env['REQUEST_PATH'] == '/time' && env['REQUEST_METHOD'] == 'GET'
+      time(ParamsParser.parse(env['QUERY_STRING']))
     else
-      not_found
+      make_responce(404, 'Not Found')
     end
     @response.finish
   end
 
   def time(params)
-    bad_request
-    if params[:format]
-      time = TimeParser.new(params[:format])
-      if time.success?
-        success(time)
-      else
-        unknown_time_format(time)
-      end
+    time = TimeParser.new(params[:format])
+    time.analyze
+    if time.success?
+      make_responce(200, time.formated_time)
+    else
+      unknown_time_format(time)
     end
   end
 
-  def bad_request
-    @response.status = 400
-    @response.body = ['Bad Request']
-  end
-
-  def success(time)
-    @response.status = 200
-    @response.body = [time.formated_time]
+  def make_responce(status, body)
+    @response.status = status
+    @response.body = [body]
   end
 
   def unknown_time_format(time)
+    make_responce(400, 'Bad Request')
     @response.body << verbose_unknown_formats(time)
   end
 
   def verbose_unknown_formats(time)
     "\nUnknown time formats: #{time.unknown_formats}"
-  end
-
-  def not_found
-    @response.status = 404
-    @response.body = ['Not Found']
-  end
-
-  def hello
-    @response.body = ['Hello!']
   end
 end
