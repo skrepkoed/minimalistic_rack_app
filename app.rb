@@ -1,21 +1,16 @@
 # frozen_string_literal: true
 
+require 'pry'
 class App
   def call(_env)
-    [status, headers, body]
+    response = Rack::Response.new
+    text_plain(response)
+    response
   end
 
   private
 
-  def status
-    200
-  end
-
-  def headers
-    { 'Content-Type' => 'text/plain' }
-  end
-
-  def body
-    ["Hello\n"]
+  def text_plain(response)
+    response['Content-Type'] = 'text/plain'
   end
 end

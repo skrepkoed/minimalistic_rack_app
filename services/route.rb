@@ -3,7 +3,7 @@
 class Route
   attr_reader :http_method, :route, :action
 
-  @@routes = [{ '/' => :get }, { '/time' => :get }]
+  ROUTES = [{ '/' => :get }, { '/time' => :get }]
   def initialize(http_method:, route:)
     @http_method = http_method.downcase.to_sym
     @route = route
@@ -18,6 +18,6 @@ class Route
   end
 
   def exists?
-    @@routes.include?({ route => http_method })
+    ROUTES.include?({ route => http_method })
   end
 end

@@ -1,28 +1,34 @@
-# frozen_string_literal: true
-
 require 'cgi'
 class TimeParser
+  attr_reader :time_format, :time, :unknown_formats
+
   ALLOWED_FORMATS = { 'second' => '%S', 'minute' => '%M', 'hour' => '%H', 'day' => '%d', 'month' => '%m',
                       'year' => '%Y' }.freeze
-  attr_accessor :time
 
-  def self.parse(time_format)
-    time = Time.now
-    time_format = CGI.unescape(time_format).split(',')
-    directives = ''
-    unknown_formats = []
+  def initialize(time_format)
+    @time_format = CGI.unescape(time_format).split(',')
+    @time = Time.now
+    analyze
+  end
+
+  def formated_time
+    time.strftime(@directives)
+  end
+
+  def analyze
+    @directives = ''
+    @unknown_formats = []
     time_format.each do |format|
       if ALLOWED_FORMATS[format]
-        directives += "#{ALLOWED_FORMATS[format]}:"
+        @directives += "#{ALLOWED_FORMATS[format]}:"
       else
         unknown_formats << format
       end
     end
-    directives.chop!
-    if unknown_formats.empty?
-      [200, { 'Content-Type' => 'text/plain' }, [time.strftime(directives)]]
-    else
-      [400, { 'Content-Type' => 'text/plain' }, ["Unknown time format #{unknown_formats}"]]
-    end
+    @directives.chop!
+  end
+
+  def success?
+    unknown_formats.empty?
   end
 end
